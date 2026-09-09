@@ -194,6 +194,7 @@ class AppsProvider(private val context: Context) {
         }
     }
 
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
     fun hasShortcutHostPermission(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 launcherApps.hasShortcutHostPermission()

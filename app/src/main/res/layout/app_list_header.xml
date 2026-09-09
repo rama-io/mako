@@ -9,4 +9,7 @@
     android:letterSpacing="0.1"
     android:focusable="false"
     android:clickable="false"
+    android:gravity="start"
+    android:textAlignment="viewStart"
+    android:textDirection="locale"
     android:textColor="@color/collapsible_header" />

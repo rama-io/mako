@@ -36,6 +36,7 @@
     <string name="charge_wireless">Inalámbrico</string>
     <string name="checkbox_click_on_icons_open_app_settings">Abrir los ajustes de la aplicación al tocar el icono</string>
     <string name="checkbox_collapse_groups_on_home_focus">Contraer los grupos al volver al inicio</string>
+    <string name="checkbox_groups_position_bottom">Mostrar grupos en la parte inferior de la pantalla</string>
     <string name="checkbox_has_collapsible_groups">Permitir contraer los grupos</string>
     <string name="checkbox_include_hidden_in_search">Incluir grupos ocultos en la búsqueda</string>
     <string name="checkbox_lock_settings">Bloquear ajustes</string>

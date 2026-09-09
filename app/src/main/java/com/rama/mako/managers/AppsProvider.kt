@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
+import androidx.annotation.ChecksSdkIntAtLeast
 import java.io.File
 
 class AppsProvider(private val context: Context) {

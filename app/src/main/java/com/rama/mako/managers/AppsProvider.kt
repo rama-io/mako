@@ -1,7 +1,6 @@
 package com.rama.mako.managers
 
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.content.Context
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
@@ -245,12 +244,12 @@ class AppsProvider(private val context: Context) {
             val activityInfo = pm.getActivityInfo(info.componentName, 0)
             val appInfo = activityInfo.applicationInfo
 
-            val overrideConfig = Configuration(context.resources.configuration)
-            val res = pm.getResourcesForApplication(appInfo, overrideConfig)
+            val res = pm.getResourcesForApplication(appInfo)
 
-            val labelRes = if (activityInfo.labelRes != 0) activityInfo.labelRes else appInfo.labelRes
+            val labelRes =
+                if (activityInfo.labelRes != 0) activityInfo.labelRes else appInfo.labelRes
             if (labelRes != 0) res.getText(labelRes).toString() else info.label.toString()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             info.label.toString()
         }
     }

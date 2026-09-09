@@ -5,6 +5,7 @@
 - LTS version
 - Reworking group list so they work on smaller screens
 - Making delete group modal easier to understand
+- Fix crash on old api versions (tested on: 21, 23, 30, 37)
 
 ## 53
 

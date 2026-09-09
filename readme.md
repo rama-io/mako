@@ -51,7 +51,7 @@ No network access is required.
 ## Usage
 
 - Long-press in an empty area of the **App List** to open **Settings**.
-- Watch the **[Mako Demo / Walkthrough](https://www.youtube.com/watch?v=cfble2DRqyM)** for a quick
+- Watch the **[Promo](https://youtu.be/u0R5YNajFHY)** for a quick
   overview.
 - Join the **[Discord Community](https://discord.gg/zFFupY8PFE)** for support and updates.
 
@@ -87,16 +87,6 @@ No network access is required.
 
 **Mako** is Free Software. You are free to use, study, share, and improve it under the terms of the
 **GNU General Public License v3** or later.
-
----
-
-## Tested Devices
-
-| Device       | OS         | Year | Status      |
-| ------------ | ---------- | ---- | ----------- |
-| Pixel 8 Pro  | Android 16 | 2026 | ✅ Verified |
-| Pixel 6      | GrapheneOS | 2026 | ✅ Verified |
-| Samsung On 5 | Android 6  | 2015 | ✅ Verified |
 
 ---
 

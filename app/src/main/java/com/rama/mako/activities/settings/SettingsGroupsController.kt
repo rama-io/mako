@@ -135,7 +135,10 @@ class SettingsGroupsController(private val activity: SettingsActivity) {
 
             val yes = dialogView.findViewById<Button>(R.id.yes_button)
             val no = dialogView.findViewById<Button>(R.id.no_button)
+            val groupName = dialogView.findViewById<TextView>(R.id.group_name)
             val radioGroup = dialogView.findViewById<RadioGroup>(R.id.groups)
+
+            groupName.setText(name.text)
 
             val currentGroupId = name.tag as String
             val targetGroups = groupsManager.getGroupIds().filter { it != currentGroupId }

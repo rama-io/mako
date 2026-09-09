@@ -1,7 +1,6 @@
 package com.rama.mako.managers
 
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.content.Context
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
@@ -10,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
+import androidx.annotation.ChecksSdkIntAtLeast
 import java.io.File
 
 class AppsProvider(private val context: Context) {
@@ -194,6 +194,7 @@ class AppsProvider(private val context: Context) {
         }
     }
 
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
     fun hasShortcutHostPermission(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 launcherApps.hasShortcutHostPermission()
@@ -245,12 +246,12 @@ class AppsProvider(private val context: Context) {
             val activityInfo = pm.getActivityInfo(info.componentName, 0)
             val appInfo = activityInfo.applicationInfo
 
-            val overrideConfig = Configuration(context.resources.configuration)
-            val res = pm.getResourcesForApplication(appInfo, overrideConfig)
+            val res = pm.getResourcesForApplication(appInfo)
 
-            val labelRes = if (activityInfo.labelRes != 0) activityInfo.labelRes else appInfo.labelRes
+            val labelRes =
+                if (activityInfo.labelRes != 0) activityInfo.labelRes else appInfo.labelRes
             if (labelRes != 0) res.getText(labelRes).toString() else info.label.toString()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             info.label.toString()
         }
     }

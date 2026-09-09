@@ -1,86 +1,100 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/app_row"
-    style="@style/HorizontalList">
+    android:background="@color/bg_3"
+    android:padding="@dimen/space_between_elements"
+    style="@style/VerticalList">
 
-    <FrameLayout
-        android:id="@+id/toggle_visibility"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12sp">
+    <LinearLayout style="@style/HorizontalList">
 
-        <ImageView
-            android:id="@+id/toggle_visibility_img"
-            android:src="@drawable/px_eye"
-            android:contentDescription="@string/altdescr_toggle_group_visibility"
-            style="@style/Icon24" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/toggle_visibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12sp">
 
-    <FrameLayout
-        android:id="@+id/toggle_keep_expanded"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12sp">
+            <ImageView
+                android:id="@+id/toggle_visibility_img"
+                android:src="@drawable/px_eye"
+                android:contentDescription="@string/altdescr_toggle_group_visibility"
+                style="@style/Icon24" />
+        </FrameLayout>
 
-        <ImageView
-            android:id="@+id/toggle_keep_expanded_img"
-            android:src="@drawable/px_pin_outline"
-            android:contentDescription="@string/altdescr_toggle_group_keep_expanded_off"
-            style="@style/Icon24" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/toggle_keep_expanded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12sp">
 
-    <FrameLayout
-        android:id="@+id/ascend_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12sp">
+            <ImageView
+                android:id="@+id/toggle_keep_expanded_img"
+                android:src="@drawable/px_pin_outline"
+                android:contentDescription="@string/altdescr_toggle_group_keep_expanded_off"
+                style="@style/Icon24" />
+        </FrameLayout>
 
-        <ImageView
-            android:src="@drawable/px_chevron_up"
-            android:contentDescription="@string/altdescr_ascend_group"
-            style="@style/Icon24" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/ascend_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12sp">
 
-    <FrameLayout
-        android:id="@+id/descend_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12sp">
+            <ImageView
+                android:src="@drawable/px_chevron_up"
+                android:contentDescription="@string/altdescr_ascend_group"
+                style="@style/Icon24" />
+        </FrameLayout>
 
-        <ImageView
-            android:src="@drawable/px_chevron_down"
-            android:contentDescription="@string/altdescr_descend_group"
-            style="@style/Icon24" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/descend_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12sp">
 
-    <EditText
-        android:id="@+id/group_name"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        style="@style/EditText" />
+            <ImageView
+                android:src="@drawable/px_chevron_down"
+                android:contentDescription="@string/altdescr_descend_group"
+                style="@style/Icon24" />
+        </FrameLayout>
 
-    <FrameLayout
-        android:visibility="gone"
-        android:id="@+id/save_changes_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12sp">
+        <FrameLayout
+            android:visibility="gone"
+            android:id="@+id/save_changes_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12sp">
 
-        <ImageView
-            android:src="@drawable/px_disk"
-            android:contentDescription="@string/btn_save"
-            style="@style/Icon24" />
-    </FrameLayout>
+            <ImageView
+                android:src="@drawable/px_disk"
+                android:contentDescription="@string/btn_save"
+                style="@style/Icon24" />
+        </FrameLayout>
 
-    <FrameLayout
-        android:id="@+id/delete_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12sp">
+        <FrameLayout
+            android:id="@+id/delete_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12sp">
 
-        <ImageView
-            android:src="@drawable/px_times"
-            android:contentDescription="@string/altdescr_delete_group"
-            style="@style/Icon24" />
-    </FrameLayout>
+            <ImageView
+                android:src="@drawable/px_times"
+                android:contentDescription="@string/altdescr_delete_group"
+                style="@style/Icon24" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout style="@style/HorizontalList">
+
+        <EditText
+            android:id="@+id/group_name"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            style="@style/EditText" />
+    </LinearLayout>
 </LinearLayout>

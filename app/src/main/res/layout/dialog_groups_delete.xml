@@ -10,6 +10,12 @@
         style="@style/H2_center" />
 
     <TextView
+        android:id="@+id/group_name"
+        android:background="@color/bg_2"
+        android:padding="@dimen/space_between_elements"
+        style="@style/Text_Center" />
+
+    <TextView
         android:text="@string/disclaimer_delete_group"
         android:gravity="center"
         style="@style/Disclaimer" />

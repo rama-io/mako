@@ -1,5 +1,9 @@
 # Changelog
 
+## 55
+
+- Prevent unwanted permissions to ever be added by third parties dependencies
+
 ## 54
 
 - LTS version

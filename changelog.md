@@ -2,7 +2,7 @@
 
 ## 55
 
-- Prevent internet to be added for future dependencies
+- Prevent unwanted permissions to ever be added by third parties dependencies
 
 ## 54
 

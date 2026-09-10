@@ -265,13 +265,6 @@ class SettingsAppearanceController(private val activity: SettingsActivity) {
                 if (isChecked) PrefsManager.BackgroundMode.WALLPAPER else PrefsManager.BackgroundMode.DEFAULT
             prefs.setHomeBackgroundMode(mode)
             activity.applySettingsBackground()
-            if (isChecked) {
-                activity.startActivity(
-                    Intent(activity, MainActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    }
-                )
-            }
         }
     }
 

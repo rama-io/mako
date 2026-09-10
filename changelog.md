@@ -1,5 +1,9 @@
 # Changelog
 
+## 55
+
+- Prevent internet to be added for future dependencies
+
 ## 54
 
 - LTS version

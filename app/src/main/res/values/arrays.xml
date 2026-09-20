@@ -17,6 +17,7 @@
         <item>jp</item>
         <item>zh-rCN</item>
         <item>es</item>
+        <item>ar</item>
     </string-array>
 
     <string-array name="supported_language_labels">
@@ -31,6 +32,7 @@
         <item>@string/radio_language_jp</item>
         <item>@string/radio_language_zh_rCN</item>
         <item>@string/radio_language_spanish</item>
+        <item>@string/radio_language_arabic</item>
     </string-array>
 
     <string-array name="wallpaper_screen_opacity_strength">

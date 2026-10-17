@@ -29,7 +29,6 @@
     <string name="btn_set_default">Escolher Laucher como Padrão</string>
     <string name="btn_unlock">Desbloqueio</string>
     <string name="charge_ac">AC</string>
-    <string name="charge_usb">USB</string>
     <string name="charge_wireless">Wireless</string>
     <string name="checkbox_click_on_icons_open_app_settings">Abrir Configurações do App clicando no Ícone</string>
     <string name="checkbox_collapse_groups_on_home_focus">Colapsar grupo quando retornar ao início</string>

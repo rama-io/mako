@@ -29,7 +29,6 @@
     <string name="btn_set_default">Başlatıcıyı varsayılan yap</string>
     <string name="btn_unlock">Kilidi Aç</string>
     <string name="charge_ac">AC</string>
-    <string name="charge_usb">USB</string>
     <string name="charge_wireless">Kablosuz</string>
     <string name="checkbox_click_on_icons_open_app_settings">İkonuna tıklandığında uygulama ayarlarını aç</string>
     <string name="checkbox_collapse_groups_on_home_focus">Ana ekrana dönünce grupları daralt</string>

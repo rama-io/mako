@@ -29,6 +29,8 @@ class SettingsAppearanceController(private val activity: SettingsActivity) {
 
     fun setup() {
         setupFontStyle()
+        setupAppFontSize()
+        setupAppRowSpacing()
         setupTemperatureFormat()
         setupTheme()
         setupCustomTheme()
@@ -314,6 +316,50 @@ class SettingsAppearanceController(private val activity: SettingsActivity) {
 
         val steps = activity.resources.getStringArray(BohioR.array.ui_scale_steps).toList()
         val matchIndex = steps.indexOfFirst { it.toFloatOrNull() == savedScale }
+        if (matchIndex >= 0) {
+            range.post {
+                val container = range.findViewById<android.widget.LinearLayout>(BohioR.id.container)
+                (container?.getChildAt(matchIndex) as? android.widget.Button)?.performClick()
+            }
+        }
+    }
+
+    private fun setupAppFontSize() {
+        val range = activity.findViewById<WdRange>(R.id.app_font_size) ?: return
+
+        val savedSize = prefs.getAppFontSize()
+
+        range.onValueChanged = { value ->
+            val size = value.toIntOrNull() ?: 32
+            if (size != prefs.getAppFontSize()) {
+                prefs.setAppFontSize(size)
+            }
+        }
+
+        val steps = activity.resources.getStringArray(R.array.app_font_size_steps).toList()
+        val matchIndex = steps.indexOfFirst { it.toIntOrNull() == savedSize }
+        if (matchIndex >= 0) {
+            range.post {
+                val container = range.findViewById<android.widget.LinearLayout>(BohioR.id.container)
+                (container?.getChildAt(matchIndex) as? android.widget.Button)?.performClick()
+            }
+        }
+    }
+
+    private fun setupAppRowSpacing() {
+        val range = activity.findViewById<WdRange>(R.id.app_row_spacing) ?: return
+
+        val savedSpacing = prefs.getAppRowSpacing()
+
+        range.onValueChanged = { value ->
+            val spacing = value.toIntOrNull() ?: 12
+            if (spacing != prefs.getAppRowSpacing()) {
+                prefs.setAppRowSpacing(spacing)
+            }
+        }
+
+        val steps = activity.resources.getStringArray(R.array.app_row_spacing_steps).toList()
+        val matchIndex = steps.indexOfFirst { it.toIntOrNull() == savedSpacing }
         if (matchIndex >= 0) {
             range.post {
                 val container = range.findViewById<android.widget.LinearLayout>(BohioR.id.container)

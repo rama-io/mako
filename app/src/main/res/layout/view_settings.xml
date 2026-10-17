@@ -98,15 +98,14 @@
 
                 <com.rama.bohio.widgets.WdCheckbox
                     android:id="@+id/auto_collapse_groups"
-    		        android:text="@string/auto_collapse_groups_label"
-    		        style="@style/Checkbox" />
+                    android:text="@string/auto_collapse_groups_label"
+                    style="@style/Checkbox" />
 
                 <View style="@style/Separator" />
 
                 <LinearLayout
                     android:id="@+id/groups"
                     android:focusableInTouchMode="true"
-                    android:orientation="vertical"
                     style="@style/VerticalListDivided_BG2" />
 
                 <Button
@@ -403,6 +402,19 @@
 
                 </LinearLayout>
 
+                <LinearLayout style="@style/VerticalListDivided_BG2">
+
+                    <TextView
+                        android:text="@string/label_app_font_size"
+                        style="@style/Text" />
+
+                    <com.rama.bohio.widgets.WdRange
+                        android:id="@+id/app_font_size"
+                        app:valuesArray="@array/app_font_size_steps"
+                        style="@style/BlockFlow" />
+
+                </LinearLayout>
+
             </com.rama.bohio.widgets.WdCollapsibleSection>
             <!--Clock-->
             <com.rama.bohio.widgets.WdCollapsibleSection
@@ -603,6 +615,24 @@
                     android:id="@+id/show_app_shortcuts"
                     android:text="@string/checkbox_show_app_shortcuts"
                     style="@style/Checkbox" />
+
+                <com.rama.bohio.widgets.WdCheckbox
+                    android:id="@+id/rtl_row"
+                    android:text="@string/checkbox_rtl_row"
+                    style="@style/Checkbox" />
+
+                <LinearLayout style="@style/VerticalListDivided_BG2">
+
+                    <TextView
+                        android:text="@string/label_app_row_spacing"
+                        style="@style/Text" />
+
+                    <com.rama.bohio.widgets.WdRange
+                        android:id="@+id/app_row_spacing"
+                        app:valuesArray="@array/app_row_spacing_steps"
+                        style="@style/BlockFlow" />
+
+                </LinearLayout>
 
             </com.rama.bohio.widgets.WdCollapsibleSection>
             <!--Security-->

@@ -28,7 +28,6 @@
     <string name="btn_set_default">Définir comme launcher par défaut</string>
     <string name="btn_unlock">Déverrouiller</string>
     <string name="charge_ac">Secteur</string>
-    <string name="charge_usb">USB</string>
     <string name="charge_wireless">Sans fil</string>
     <string name="checkbox_click_on_icons_open_app_settings">Ouvrir les paramètres de l\'application en touchant l\'icône</string>
     <string name="checkbox_collapse_groups_on_home_focus">Replier les groupes au retour à l\'accueil</string>

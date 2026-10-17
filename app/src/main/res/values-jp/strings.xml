@@ -29,7 +29,6 @@
     <string name="btn_set_default">ランチャーをデフォルトに設定する</string>
     <string name="btn_unlock">ロック解除</string>
     <string name="charge_ac">AC</string>
-    <string name="charge_usb">USB</string>
     <string name="charge_wireless">ワイヤレス</string>
     <string name="checkbox_click_on_icons_open_app_settings">アイコンをタップしてアプリの設定画面を開く</string>
     <string name="checkbox_collapse_groups_on_home_focus">ホームに戻ったとき、グループを折りたたむ</string>

@@ -37,7 +37,7 @@
     <string name="btn_set_default">Set Launcher as default</string>
     <string name="btn_unlock">Unlock</string>
     <string name="charge_ac">AC</string>
-    <string name="charge_usb">USB</string>
+    <string name="charge_usb" translatable="false">USB</string>
     <string name="charge_wireless">Wireless</string>
     <string name="checkbox_click_on_icons_open_app_settings">Open app settings when clicking icons</string>
     <string name="checkbox_collapse_groups_on_home_focus">Collapse groups when returning home</string>
@@ -46,6 +46,7 @@
     <string name="checkbox_lock_settings">Lock Settings</string>
     <string name="checkbox_multi_column">Multi-column layout</string>
     <string name="checkbox_randomized_keypad">Randomized keypad</string>
+    <string name="checkbox_rtl_row">Set Right-to-left app list</string>
     <string name="checkbox_show_api_indicators">Show min/target API levels</string>
     <string name="checkbox_show_app_shortcuts">Show app shortcuts</string>
     <string name="checkbox_show_app_size">Show app size</string>
@@ -90,6 +91,8 @@
     <string name="h3_security">Security</string>
     <string name="h3_temperature">Temperature</string>
     <string name="hint_search_apps">Search apps…</string>
+    <string name="label_app_font_size">Font size</string>
+    <string name="label_app_row_spacing">Rows spacing</string>
     <string name="label_screen_opacity_strength">Screen opacity strength</string>
     <string name="multi_select_cancel">Cancel</string>
     <string name="multi_select_count">%1$d selected</string>

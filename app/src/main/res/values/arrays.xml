@@ -7,30 +7,34 @@
          3. Add a label entry (use @string or a literal like "Türkçe") -->
     <string-array name="supported_language_codes">
         <item>system</item>
-        <item>en</item>
+        <item>ca</item>
         <item>de</item>
-        <item>tr</item>
-        <item>fr</item>
-        <item>fi</item>
-        <item>fil-rPH</item>
-        <item>pt-rBR</item>
-        <item>jp</item>
-        <item>zh-rCN</item>
+        <item>en</item>
         <item>es</item>
+        <item>fr</item>
+        <item>fil-rPH</item>
+        <item>gl</item>
+        <item>tr</item>
+        <item>pt-rBR</item>
+        <item>fi</item>
+        <item>zh-rCN</item>
+        <item>jp</item>
     </string-array>
 
     <string-array name="supported_language_labels">
         <item>@string/radio_language_system_default</item>
-        <item>@string/radio_language_english</item>
-        <item>@string/radio_language_german</item>
-        <item>@string/radio_language_turkish</item>
-        <item>@string/radio_language_french</item>
-        <item>@string/radio_language_fi</item>
+        <item>@string/radio_language_ca</item>
+        <item>@string/radio_language_de</item>
+        <item>@string/radio_language_en</item>
+        <item>@string/radio_language_es</item>
+        <item>@string/radio_language_fr</item>
         <item>@string/radio_language_fil_rPH</item>
+        <item>@string/radio_language_gl</item>
+        <item>@string/radio_language_tr</item>
         <item>@string/radio_language_pt_rBR</item>
-        <item>@string/radio_language_jp</item>
+        <item>@string/radio_language_fi</item>
         <item>@string/radio_language_zh_rCN</item>
-        <item>@string/radio_language_spanish</item>
+        <item>@string/radio_language_jp</item>
     </string-array>
 
     <string-array name="wallpaper_screen_opacity_strength">
@@ -52,5 +56,29 @@
         <item>@string/app_trackers_desc</item>
         <item>@string/app_offline_desc</item>
         <item>@string/license_gpl3</item>
+    </string-array>
+
+    <string-array name="app_font_size_steps">
+        <item>16</item>
+        <item>20</item>
+        <item>24</item>
+        <item>28</item>
+        <item>32</item>
+        <item>36</item>
+        <item>40</item>
+        <item>44</item>
+        <item>48</item>
+    </string-array>
+
+    <string-array name="app_row_spacing_steps">
+        <item>0</item>
+        <item>4</item>
+        <item>8</item>
+        <item>12</item>
+        <item>16</item>
+        <item>20</item>
+        <item>24</item>
+        <item>28</item>
+        <item>32</item>
     </string-array>
 </resources>

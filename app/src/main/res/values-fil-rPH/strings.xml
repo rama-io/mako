@@ -29,7 +29,6 @@
     <string name="btn_set_default">Itakda ang Launcher bilang default</string>
     <string name="btn_unlock">I-unlock</string>
     <string name="charge_ac">AC</string>
-    <string name="charge_usb">USB</string>
     <string name="charge_wireless">Wireless</string>
     <string name="checkbox_click_on_icons_open_app_settings">Buksan ang app settings kapag pinindot ang mga icon</string>
     <string name="checkbox_collapse_groups_on_home_focus">I-collapse ang mga grupo pagbalik sa home</string>

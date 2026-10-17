@@ -28,6 +28,9 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
         const val APPS_SHOW_API_INDICATORS = "apps:show_api_indicators"
         const val APPS_SHOW_SIZE = "apps:show_size"
         const val APPS_SHOW_SHORTCUTS = "apps:show_shortcuts"
+        const val APPS_RTL_ROW = "apps:rtl_row"
+        const val APPS_FONT_SIZE = "apps:font_size"
+        const val APPS_ROW_SPACING = "apps:row_spacing"
 
         const val HOME_BACKGROUND_MODE = "home:background_mode"
         const val HOME_BACKGROUND_MODE_SCREEN_OPACITY_STRENGTH =
@@ -171,6 +174,9 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
         editor.putBoolean(FileKeys.APPS_SHOW_API_INDICATORS, false)
         editor.putBoolean(FileKeys.APPS_SHOW_SIZE, false)
         editor.putBoolean(FileKeys.APPS_SHOW_SHORTCUTS, false)
+        editor.putBoolean(FileKeys.APPS_RTL_ROW, false)
+        editor.putInt(FileKeys.APPS_FONT_SIZE, 32)
+        editor.putInt(FileKeys.APPS_ROW_SPACING, 12)
 
         editor.putString(FileKeys.HOME_BACKGROUND_MODE, BackgroundMode.DEFAULT)
         editor.putInt(FileKeys.HOME_BACKGROUND_MODE_SCREEN_OPACITY_STRENGTH, 9)
@@ -447,6 +453,24 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
 
     fun hasAppShortcuts(): Boolean =
         prefs.getBoolean(FileKeys.APPS_SHOW_SHORTCUTS, false)
+
+    fun isRtlRowEnabled(): Boolean =
+        prefs.getBoolean(FileKeys.APPS_RTL_ROW, false)
+
+    fun setRtlRowEnabled(enabled: Boolean) =
+        prefs.edit().putBoolean(FileKeys.APPS_RTL_ROW, enabled).apply()
+
+    fun getAppFontSize(): Int =
+        prefs.getInt(FileKeys.APPS_FONT_SIZE, 32)
+
+    fun setAppFontSize(size: Int) =
+        prefs.edit().putInt(FileKeys.APPS_FONT_SIZE, size).apply()
+
+    fun getAppRowSpacing(): Int =
+        prefs.getInt(FileKeys.APPS_ROW_SPACING, 12)
+
+    fun setAppRowSpacing(spacing: Int) =
+        prefs.edit().putInt(FileKeys.APPS_ROW_SPACING, spacing).apply()
 
     fun setMultiColumnEnabled(enabled: Boolean) =
         prefs.edit().putBoolean(FileKeys.APPS_MULTI_COLUMN, enabled).apply()

@@ -258,7 +258,10 @@ class AppsProvider(private val context: Context) {
 
     private fun appCacheKey(app: AppEntry): String =
         when (app) {
-            is ActivityEntry -> "${app.packageName}:${app.userHandle.hashCode()}"
+            // The class name keeps apart several launcher activities of one package,
+            // each of which may carry its own icon (activity-alias).
+            is ActivityEntry ->
+                "${app.packageName}:${app.activityInfo.componentName.className}:${app.userHandle.hashCode()}"
             is ShortcutEntry ->
                 "shortcut:${app.packageName}:${app.shortcutId}:${app.userHandle.hashCode()}"
         }

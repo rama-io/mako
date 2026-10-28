@@ -165,8 +165,10 @@ class AppListManager(
             val isExpanded = prefs.isGroupKeepExpanded(groupId) || prefs.isGroupExpanded(groupId)
             if (!isExpanded) return@forEach
 
-            apps.sortedBy { getSearchableName(it) }
-                .forEach { items.add(ListItem.App(it)) }
+            apps.sortedWith(
+                compareBy<AppsProvider.AppEntry> { it.statusLevel }
+                    .thenBy { getSearchableName(it) }
+            ).forEach { items.add(ListItem.App(it)) }
         }
 
         adapter.updateItems(arrangeItemsForColumns(items))
@@ -178,7 +180,7 @@ class AppListManager(
     private fun getSearchableName(app: AppsProvider.AppEntry): String {
         val key = getAppCacheKey(app)
         return searchableNameCache.getOrPut(key) {
-            normalizeForSearch(getDisplayName(app))
+            normalizeForSearch(getBaseDisplayName(app))
         }
     }
 
@@ -323,13 +325,18 @@ class AppListManager(
         return 1000 + (fuzzyDistance * 100) + lengthDiff
     }
 
-    private fun getDisplayName(app: AppsProvider.AppEntry): String {
+    private fun getBaseDisplayName(app: AppsProvider.AppEntry): String {
         val baseName = prefs.getCustomName(app) ?: app.displayLabel
-        val named = if (prefs.hasProfileIndicator() && app.isWorkProfile) {
+        return if (prefs.hasProfileIndicator() && app.isWorkProfile) {
             "[${app.profileInitial}] $baseName"
         } else {
             baseName
         }
+    }
+
+    // Same marker as mako_zero: "(1) " for disabled, "(2) " for not running.
+    private fun getDisplayName(app: AppsProvider.AppEntry): String {
+        val named = getBaseDisplayName(app)
         return if (app.hasStatus) "(${app.statusLevel}) $named" else named
     }
 

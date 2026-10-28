@@ -1,5 +1,9 @@
 # Changelog
 
+## 58
+
+- Add level of privacy badge for each running app
+
 ## 57
 
 - Add apps custom font size

@@ -2,7 +2,7 @@
 
 ## 58
 
-- Add level of privacy badge for each running app
+- Add running badge for each app
 
 ## 57
 

@@ -63,6 +63,7 @@ class AppListManager(
         private const val PACKAGE_SCORE_PENALTY = 2000
         private const val GROUP_SCORE_PENALTY = 4000
         private const val APP_SIZE_WARNING_BYTES = 200L * 1024 * 1024 // 200 MB
+        private const val DIMMED_ICON_ALPHA = 0.4f
         private const val VIEW_TYPE_GROUP_HEADER = 1
         private const val VIEW_TYPE_APP = 2
         private const val VIEW_TYPE_EMPTY = 3
@@ -98,7 +99,8 @@ class AppListManager(
         if (layoutManager.spanCount != columnCount) {
             layoutManager.spanCount = columnCount
         }
-        recyclerView.layoutDirection = if (prefs.isRtlRowEnabled()) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+        recyclerView.layoutDirection =
+            if (prefs.isRtlRowEnabled()) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         updateAppsCache()
         buildItems()
     }
@@ -323,11 +325,12 @@ class AppListManager(
 
     private fun getDisplayName(app: AppsProvider.AppEntry): String {
         val baseName = prefs.getCustomName(app) ?: app.displayLabel
-        return if (prefs.hasProfileIndicator() && app.isWorkProfile) {
+        val named = if (prefs.hasProfileIndicator() && app.isWorkProfile) {
             "[${app.profileInitial}] $baseName"
         } else {
             baseName
         }
+        return if (app.hasStatus) "(${app.statusLevel}) $named" else named
     }
 
     fun filter(query: String) {
@@ -449,6 +452,16 @@ class AppListManager(
                     .show()
             }
 
+            is AppsProvider.DisabledEntry -> {
+                // App info is the place where a disabled app can be enabled again.
+                context.startActivity(
+                    Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", app.packageName, null)
+                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                )
+            }
+
             is AppsProvider.ActivityEntry -> {
                 // Apps living in another profile (e.g. the private space) must be opened
                 // via LauncherApps with that profile's UserHandle, otherwise the system
@@ -495,10 +508,24 @@ class AppListManager(
         val targetApiText = view.findViewById<TextView>(R.id.target_api)
         val appSizeText = view.findViewById<TextView>(R.id.app_size)
 
-        if (app !is AppsProvider.ActivityEntry) {
-            apiRow.visibility = View.GONE
-            appSizeText.visibility = View.GONE
-            return
+        val minSdk: Int
+        val targetSdk: Int
+        when (app) {
+            is AppsProvider.ActivityEntry -> {
+                minSdk = app.minSdkVersion
+                targetSdk = app.targetSdkVersion
+            }
+
+            is AppsProvider.DisabledEntry -> {
+                minSdk = app.minSdkVersion
+                targetSdk = app.targetSdkVersion
+            }
+
+            is AppsProvider.ShortcutEntry -> {
+                apiRow.visibility = View.GONE
+                appSizeText.visibility = View.GONE
+                return
+            }
         }
 
         ThemeManager.applyTheme(context, apiRow)
@@ -510,10 +537,10 @@ class AppListManager(
         if (prefs.hasApiIndicatorsVisible()) {
             apiRow.visibility = View.VISIBLE
 
-            minApiText.text = app.minSdkVersion.toString()
-            targetApiText.text = app.targetSdkVersion.toString()
+            minApiText.text = minSdk.toString()
+            targetApiText.text = targetSdk.toString()
 
-            val isOutdatedTarget = app.targetSdkVersion < Build.VERSION.SDK_INT
+            val isOutdatedTarget = targetSdk < Build.VERSION.SDK_INT
             val apiColor = if (isOutdatedTarget) dangerColor else normalColor
 
             minApiText.setTextColor(apiColor)
@@ -854,7 +881,8 @@ class AppListManager(
     private fun configureRecyclerView() {
         layoutManager = GridLayoutManager(context, computeColumnCount())
         recyclerView.layoutManager = layoutManager
-        recyclerView.layoutDirection = if (prefs.isRtlRowEnabled()) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+        recyclerView.layoutDirection =
+            if (prefs.isRtlRowEnabled()) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         recyclerView.adapter = adapter
     }
 
@@ -923,8 +951,10 @@ class AppListManager(
 
     private fun bindGroupHeader(holder: GroupHeaderViewHolder, item: ListItem.Header) {
         val isRtl = prefs.isRtlRowEnabled()
-        holder.itemView.layoutDirection = if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
-        holder.text.layoutDirection = if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+        holder.itemView.layoutDirection =
+            if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+        holder.text.layoutDirection =
+            if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         holder.text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
 
         val pinned = prefs.isGroupKeepExpanded(item.id)
@@ -1022,6 +1052,7 @@ class AppListManager(
 
         if (showIcons) {
             holder.icon.setImageDrawable(iconManager.getIcon(app))
+            holder.icon.alpha = if (app.hasStatus) DIMMED_ICON_ALPHA else 1f
             holder.icon.visibility = View.VISIBLE
             holder.icon.setOnClickListener { handleIconClick(app) }
             holder.icon.setOnLongClickListener {
@@ -1040,6 +1071,13 @@ class AppListManager(
         }
 
         holder.label.text = getDisplayName(app)
+        // Set before applyTheme below, which remaps these resource colors to the active palette.
+        holder.label.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (app.hasStatus) BohioR.color.disabled else BohioR.color.foreground
+            )
+        )
 
         val launchOrToggle = View.OnClickListener {
             if (isMultiSelectMode) {

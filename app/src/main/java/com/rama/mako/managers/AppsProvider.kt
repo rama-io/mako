@@ -1,12 +1,16 @@
 package com.rama.mako.managers
 
-import android.content.pm.PackageManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.Process
 import android.os.UserHandle
 import android.os.UserManager
 import androidx.annotation.ChecksSdkIntAtLeast
@@ -22,6 +26,10 @@ class AppsProvider(private val context: Context) {
     ) {
         val isWorkProfile: Boolean = userHandle.hashCode() != 0
         val displayLabel: String = label
+        open val statusLevel: Int get() = STATUS_NONE
+        val isDisabled: Boolean get() = statusLevel == STATUS_DISABLED
+        val isNotRunning: Boolean get() = statusLevel == STATUS_NOT_RUNNING
+        val hasStatus: Boolean get() = statusLevel != STATUS_NONE
     }
 
     class ActivityEntry(
@@ -39,6 +47,28 @@ class AppsProvider(private val context: Context) {
 
         val targetSdkVersion: Int
             get() = activityInfo.applicationInfo.targetSdkVersion
+
+        override val statusLevel: Int
+            get() = if (isStopped(activityInfo.applicationInfo)) STATUS_NOT_RUNNING else STATUS_NONE
+    }
+
+    class DisabledEntry(
+        packageName: String,
+        label: String,
+        userHandle: UserHandle,
+        val componentName: ComponentName,
+        val applicationInfo: ApplicationInfo,
+        profileInitial: String?
+    ) : AppEntry(packageName, label, userHandle, profileInitial) {
+        val minSdkVersion: Int
+            get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                applicationInfo.minSdkVersion
+            } else 0
+
+        val targetSdkVersion: Int
+            get() = applicationInfo.targetSdkVersion
+
+        override val statusLevel: Int get() = STATUS_DISABLED
     }
 
     class ShortcutEntry(
@@ -50,6 +80,15 @@ class AppsProvider(private val context: Context) {
         val shortcutInfo: ShortcutInfo,
         val isPinned: Boolean = false
     ) : AppEntry(packageName, label, userHandle, profileInitial)
+
+    companion object {
+        const val STATUS_NONE = -1
+        const val STATUS_DISABLED = 1
+        const val STATUS_NOT_RUNNING = 2
+
+        private fun isStopped(info: ApplicationInfo): Boolean =
+            (info.flags and ApplicationInfo.FLAG_STOPPED) != 0
+    }
 
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -93,12 +132,55 @@ class AppsProvider(private val context: Context) {
             appEntries + shortcutEntries
         }
 
-        return realApps
+        return realApps + getDisabledEntries(realApps)
+    }
+
+    private fun getDisabledEntries(realApps: List<AppEntry>): List<AppEntry> {
+        val pm = context.packageManager
+        val me = Process.myUserHandle()
+        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+
+        val resolved = try {
+            @Suppress("DEPRECATION")
+            pm.queryIntentActivities(intent, PackageManager.GET_DISABLED_COMPONENTS)
+        } catch (e: Exception) {
+            return emptyList()
+        }
+
+        val enabledPackages = realApps
+            .filterIsInstance<ActivityEntry>()
+            .filter { it.userHandle == me }
+            .mapTo(HashSet()) { it.packageName }
+        val seen = HashSet<String>()
+        val profileInitial = getProfileInitial(me)
+
+        return resolved.mapNotNull { info ->
+            val activity = info.activityInfo ?: return@mapNotNull null
+            val appInfo = activity.applicationInfo ?: return@mapNotNull null
+            val unavailable = !activity.enabled || !appInfo.enabled
+            if (!unavailable) return@mapNotNull null
+            if (appInfo.packageName in enabledPackages) return@mapNotNull null
+            if (!seen.add(appInfo.packageName)) return@mapNotNull null
+
+            val label = runCatching { appInfo.loadLabel(pm).toString() }
+                .getOrDefault(appInfo.packageName)
+            DisabledEntry(
+                packageName = appInfo.packageName,
+                label = label,
+                userHandle = me,
+                componentName = ComponentName(activity.packageName, activity.name),
+                applicationInfo = appInfo,
+                profileInitial = profileInitial
+            )
+        }
     }
 
     fun launch(app: AppEntry): Boolean {
+        if (app.isDisabled) return false
         return try {
             when (app) {
+                is DisabledEntry -> Unit
+
                 is ActivityEntry -> launcherApps.startMainActivity(
                     app.activityInfo.componentName,
                     app.userHandle,
@@ -136,6 +218,12 @@ class AppsProvider(private val context: Context) {
             when (app) {
                 is ActivityEntry ->
                     app.activityInfo.getIcon(context.resources.displayMetrics.densityDpi)
+
+                is DisabledEntry -> runCatching {
+                    context.packageManager.getActivityIcon(app.componentName)
+                }.recoverCatching {
+                    app.applicationInfo.loadIcon(context.packageManager)
+                }.getOrDefault(context.packageManager.defaultActivityIcon)
 
                 is ShortcutEntry -> {
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -180,11 +268,15 @@ class AppsProvider(private val context: Context) {
 
     // Size on disk of the installed APK(s) (base + splits). Cached since it
     // requires file stat calls and only changes when an app is updated.
-    fun getAppSizeBytes(app: ActivityEntry): Long {
+    fun getAppSizeBytes(app: AppEntry): Long {
         val key = appCacheKey(app)
         return appSizeCache.getOrPut(key) {
             runCatching {
-                val info = app.activityInfo.applicationInfo
+                val info = when (app) {
+                    is ActivityEntry -> app.activityInfo.applicationInfo
+                    is DisabledEntry -> app.applicationInfo
+                    is ShortcutEntry -> return@runCatching 0L
+                }
                 var total = File(info.sourceDir).length()
                 info.splitSourceDirs?.forEach { split ->
                     total += File(split).length()
@@ -259,6 +351,7 @@ class AppsProvider(private val context: Context) {
     private fun appCacheKey(app: AppEntry): String =
         when (app) {
             is ActivityEntry -> "${app.packageName}:${app.userHandle.hashCode()}"
+            is DisabledEntry -> "disabled:${app.packageName}:${app.userHandle.hashCode()}"
             is ShortcutEntry ->
                 "shortcut:${app.packageName}:${app.shortcutId}:${app.userHandle.hashCode()}"
         }

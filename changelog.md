@@ -1,5 +1,9 @@
 # Changelog
 
+## 58
+
+- Add running badge for each app
+
 ## 57
 
 - Add apps custom font size

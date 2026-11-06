@@ -1,5 +1,9 @@
 # Changelog
 
+## 59
+
+- Add PWA support
+
 ## 58
 
 - Add running badge for each app

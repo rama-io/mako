@@ -96,7 +96,7 @@ class AppsProvider(private val context: Context) {
     private val appSizeCache = mutableMapOf<String, Long>()
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
 
-    fun getAll(includeShortcuts: Boolean = true): List<AppEntry> {
+    fun getAll(includeDynamicShortcuts: Boolean = true): List<AppEntry> {
         val realApps = userManager.userProfiles.flatMap { userHandle ->
             val profileInitial = getProfileInitial(userHandle)
 
@@ -118,18 +118,19 @@ class AppsProvider(private val context: Context) {
                 )
             }
 
-            if (!includeShortcuts) {
-                return@flatMap appEntries
+            val pinnedShortcutEntries = getPinnedShortcutEntries(userHandle, profileInitial)
+
+            val dynamicShortcutEntries = if (includeDynamicShortcuts) {
+                val appLabelsByPackage = activities
+                    .groupBy { it.applicationInfo.packageName }
+                    .mapValues { (_, infos) -> localizedActivityLabel(infos.first()) }
+                val pinnedKeys = pinnedShortcutEntries.mapTo(HashSet()) { it.packageName to it.shortcutId }
+                getDynamicShortcutEntries(userHandle, profileInitial, appLabelsByPackage, pinnedKeys)
+            } else {
+                emptyList()
             }
 
-            // Used to prefix shortcut labels with their parent app's name, e.g. "Clock: Timer".
-            val appLabelsByPackage = activities
-                .groupBy { it.applicationInfo.packageName }
-                .mapValues { (_, infos) -> localizedActivityLabel(infos.first()) }
-
-            val shortcutEntries = getShortcutEntries(userHandle, profileInitial, appLabelsByPackage)
-
-            appEntries + shortcutEntries
+            appEntries + pinnedShortcutEntries + dynamicShortcutEntries
         }
 
         return realApps + getDisabledEntries(realApps)
@@ -291,44 +292,75 @@ class AppsProvider(private val context: Context) {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 launcherApps.hasShortcutHostPermission()
 
-    private fun getShortcutEntries(
+    private fun resolveShortcutLabel(shortcut: ShortcutInfo): String =
+        shortcut.shortLabel?.toString()
+            ?.ifBlank { null }
+            ?: shortcut.longLabel?.toString()
+                ?.ifBlank { null }
+            ?: shortcut.id
+
+    private fun getPinnedShortcutEntries(
+        userHandle: UserHandle,
+        profileInitial: String?
+    ): List<ShortcutEntry> {
+        if (!hasShortcutHostPermission()) return emptyList()
+
+        val query = LauncherApps.ShortcutQuery().apply {
+            setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+        }
+        return runCatching {
+            launcherApps.getShortcuts(query, userHandle).orEmpty().map { shortcut ->
+                val shortcutId = shortcut.id
+                val label = resolveShortcutLabel(shortcut)
+                ShortcutEntry(
+                    packageName = shortcut.`package`,
+                    label = label,
+                    userHandle = userHandle,
+                    profileInitial = profileInitial,
+                    shortcutId = shortcutId,
+                    shortcutInfo = shortcut,
+                    isPinned = true
+                )
+            }
+        }.getOrDefault(emptyList())
+    }
+
+    private fun getDynamicShortcutEntries(
         userHandle: UserHandle,
         profileInitial: String?,
-        appLabelsByPackage: Map<String, String>
+        appLabelsByPackage: Map<String, String>,
+        pinnedShortcutKeys: Set<Pair<String, String>>
     ): List<ShortcutEntry> {
         if (!hasShortcutHostPermission()) return emptyList()
 
         val query = LauncherApps.ShortcutQuery().apply {
             setQueryFlags(
                 LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
             )
         }
         return runCatching {
-            launcherApps.getShortcuts(query, userHandle).orEmpty().map { shortcut ->
-                val shortcutId = shortcut.id
-                val shortcutLabel = shortcut.shortLabel?.toString()
-                    ?.ifBlank { null }
-                    ?: shortcut.longLabel?.toString()
-                        ?.ifBlank { null }
-                    ?: shortcutId
-                val appLabel = appLabelsByPackage[shortcut.`package`]
-                val combinedLabel = if (appLabel != null) {
-                    "$appLabel: $shortcutLabel"
-                } else {
-                    shortcutLabel
+            launcherApps.getShortcuts(query, userHandle).orEmpty()
+                .filter { (it.`package` to it.id) !in pinnedShortcutKeys }
+                .map { shortcut ->
+                    val shortcutId = shortcut.id
+                    val shortcutLabel = resolveShortcutLabel(shortcut)
+                    val appLabel = appLabelsByPackage[shortcut.`package`]
+                    val combinedLabel = if (appLabel != null) {
+                        "$appLabel: $shortcutLabel"
+                    } else {
+                        shortcutLabel
+                    }
+                    ShortcutEntry(
+                        packageName = shortcut.`package`,
+                        label = combinedLabel,
+                        userHandle = userHandle,
+                        profileInitial = profileInitial,
+                        shortcutId = shortcutId,
+                        shortcutInfo = shortcut,
+                        isPinned = false
+                    )
                 }
-                ShortcutEntry(
-                    packageName = shortcut.`package`,
-                    label = combinedLabel,
-                    userHandle = userHandle,
-                    profileInitial = profileInitial,
-                    shortcutId = shortcutId,
-                    shortcutInfo = shortcut,
-                    isPinned = shortcut.isPinned
-                )
-            }
         }.getOrDefault(emptyList())
     }
 

@@ -130,7 +130,7 @@ class AppListManager(
     }
 
     private fun updateAppsCache() {
-        allAppsCache = appsProvider.getAll(includeShortcuts = prefs.hasAppShortcuts())
+        allAppsCache = appsProvider.getAll(includeDynamicShortcuts = prefs.hasAppShortcuts())
         searchableNameCache.clear()
         packageNameCache.clear()
     }
@@ -749,8 +749,12 @@ class AppListManager(
         val isSingle = selectedApp != null
         renameButton?.visibility = if (isSingle) View.VISIBLE else View.GONE
         appSettingsButton?.visibility = if (isSingle) View.VISIBLE else View.GONE
+        val isPinnedShortcut = selectedApp is AppsProvider.ShortcutEntry && selectedApp.isPinned
+        appSettingsIcon?.setImageResource(
+            if (isPinnedShortcut) BohioR.drawable.px_trash else BohioR.drawable.px_cog
+        )
         appSettingsIcon?.contentDescription = context.getString(
-            if (selectedApp is AppsProvider.ShortcutEntry && selectedApp.isPinned) {
+            if (isPinnedShortcut) {
                 R.string.btn_remove_shortcut
             } else {
                 R.string.ctxmenu_open_settings

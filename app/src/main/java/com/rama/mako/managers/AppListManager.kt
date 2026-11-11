@@ -337,8 +337,11 @@ class AppListManager(
     // Same marker as mako_zero: "(1) " for disabled, "(2) " for not running.
     private fun getDisplayName(app: AppsProvider.AppEntry): String {
         val named = getBaseDisplayName(app)
-        return if (app.hasStatus) "(${app.statusLevel}) $named" else named
+        return if (isStatusShown(app)) "(${app.statusLevel}) $named" else named
     }
+
+    private fun isStatusShown(app: AppsProvider.AppEntry): Boolean =
+        app.hasStatus && prefs.hasRunningIndicator()
 
     fun filter(query: String) {
         val normalizedQuery = normalizeForSearch(query)
@@ -1063,7 +1066,7 @@ class AppListManager(
 
         if (showIcons) {
             holder.icon.setImageDrawable(iconManager.getIcon(app))
-            holder.icon.alpha = if (app.hasStatus) DIMMED_ICON_ALPHA else 1f
+            holder.icon.alpha = if (isStatusShown(app)) DIMMED_ICON_ALPHA else 1f
             holder.icon.visibility = View.VISIBLE
             holder.icon.setOnClickListener { handleIconClick(app) }
             holder.icon.setOnLongClickListener {
@@ -1086,7 +1089,7 @@ class AppListManager(
         holder.label.setTextColor(
             ContextCompat.getColor(
                 context,
-                if (app.hasStatus) BohioR.color.disabled else BohioR.color.foreground
+                if (isStatusShown(app)) BohioR.color.disabled else BohioR.color.foreground
             )
         )
 

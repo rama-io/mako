@@ -598,7 +598,7 @@
 
                 <com.rama.bohio.widgets.WdCheckbox
                     android:id="@+id/show_running_app_indicator"
-                    android:text="Show running app indicator"
+                    android:text="@string/checkbox_show_running_app_indicator"
                     style="@style/Checkbox" />
 
                 <com.rama.bohio.widgets.WdCheckbox

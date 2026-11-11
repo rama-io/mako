@@ -19,6 +19,7 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
         const val APPS_SEARCH_ALWAYS_VISIBLE = "apps:search:always_visible"
         const val APPS_SEARCH_INCLUDE_HIDDEN_GROUPS = "apps:search:include_hidden_groups"
         const val APPS_PROFILE_INDICATOR = "apps:profile_indicator"
+        const val APPS_RUNNING_INDICATOR = "apps:app_running_indicator"
 
         const val APPS_ICONS = "apps:icons"
         const val APPS_ICON_SOURCE = "apps:icon_source"

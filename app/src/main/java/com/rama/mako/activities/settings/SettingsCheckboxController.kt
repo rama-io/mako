@@ -97,6 +97,8 @@ class SettingsCheckboxController(private val activity: SettingsActivity) {
         )
 
         bindWdCheckbox(R.id.show_profile_indicator, FileKeys.APPS_PROFILE_INDICATOR, true)
+        bindWdCheckbox(R.id.show_running_app_indicator, FileKeys.APPS_RUNNING_INDICATOR, true)
+
         bindWdCheckbox(R.id.multi_column, FileKeys.APPS_MULTI_COLUMN, false)
         bindWdCheckbox(R.id.show_api_indicators, FileKeys.APPS_SHOW_API_INDICATORS, false)
         bindWdCheckbox(R.id.show_app_size, FileKeys.APPS_SHOW_SIZE, false)

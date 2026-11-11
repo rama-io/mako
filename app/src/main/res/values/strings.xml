@@ -57,6 +57,7 @@
     <string name="checkbox_show_date">Show date</string>
     <string name="checkbox_show_group_header">Show group header</string>
     <string name="checkbox_show_profile_indicator">Show profile indicator</string>
+    <string name="checkbox_show_running_app_indicator">Show running app indicator</string>
     <string name="checkbox_show_search">Show search bar</string>
     <string name="checkbox_show_ungrouped_apps">Show ungrouped apps</string>
     <string name="checkbox_show_year_day">Show day of the year</string>

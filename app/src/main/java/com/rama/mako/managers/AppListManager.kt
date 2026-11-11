@@ -130,7 +130,7 @@ class AppListManager(
     }
 
     private fun updateAppsCache() {
-        allAppsCache = appsProvider.getAll(includeShortcuts = prefs.hasAppShortcuts())
+        allAppsCache = appsProvider.getAll(includeDynamicShortcuts = prefs.hasAppShortcuts())
         searchableNameCache.clear()
         packageNameCache.clear()
     }
@@ -337,8 +337,11 @@ class AppListManager(
     // Same marker as mako_zero: "(1) " for disabled, "(2) " for not running.
     private fun getDisplayName(app: AppsProvider.AppEntry): String {
         val named = getBaseDisplayName(app)
-        return if (app.hasStatus) "(${app.statusLevel}) $named" else named
+        return if (isStatusShown(app)) "(${app.statusLevel}) $named" else named
     }
+
+    private fun isStatusShown(app: AppsProvider.AppEntry): Boolean =
+        app.hasStatus && prefs.hasRunningIndicator()
 
     fun filter(query: String) {
         val normalizedQuery = normalizeForSearch(query)
@@ -749,8 +752,12 @@ class AppListManager(
         val isSingle = selectedApp != null
         renameButton?.visibility = if (isSingle) View.VISIBLE else View.GONE
         appSettingsButton?.visibility = if (isSingle) View.VISIBLE else View.GONE
+        val isPinnedShortcut = selectedApp is AppsProvider.ShortcutEntry && selectedApp.isPinned
+        appSettingsIcon?.setImageResource(
+            if (isPinnedShortcut) BohioR.drawable.px_trash else BohioR.drawable.px_cog
+        )
         appSettingsIcon?.contentDescription = context.getString(
-            if (selectedApp is AppsProvider.ShortcutEntry && selectedApp.isPinned) {
+            if (isPinnedShortcut) {
                 R.string.btn_remove_shortcut
             } else {
                 R.string.ctxmenu_open_settings
@@ -1059,7 +1066,7 @@ class AppListManager(
 
         if (showIcons) {
             holder.icon.setImageDrawable(iconManager.getIcon(app))
-            holder.icon.alpha = if (app.hasStatus) DIMMED_ICON_ALPHA else 1f
+            holder.icon.alpha = if (isStatusShown(app)) DIMMED_ICON_ALPHA else 1f
             holder.icon.visibility = View.VISIBLE
             holder.icon.setOnClickListener { handleIconClick(app) }
             holder.icon.setOnLongClickListener {
@@ -1082,7 +1089,7 @@ class AppListManager(
         holder.label.setTextColor(
             ContextCompat.getColor(
                 context,
-                if (app.hasStatus) BohioR.color.disabled else BohioR.color.foreground
+                if (isStatusShown(app)) BohioR.color.disabled else BohioR.color.foreground
             )
         )
 

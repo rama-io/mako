@@ -34,6 +34,7 @@ import com.rama.bohio.managers.ThemeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -173,7 +174,7 @@ class AppListManager(
         if (isCallbackRegistered) return
         runCatching {
             val launcherApps =
-                context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+                context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
             launcherApps?.registerCallback(launcherAppsCallback, Handler(Looper.getMainLooper()))
             isCallbackRegistered = true
         }
@@ -183,10 +184,15 @@ class AppListManager(
         if (!isCallbackRegistered) return
         runCatching {
             val launcherApps =
-                context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+                context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
             launcherApps?.unregisterCallback(launcherAppsCallback)
             isCallbackRegistered = false
         }
+    }
+
+    fun destroy() {
+        unregisterLauncherAppsCallback()
+        scope.cancel()
     }
 
     fun collapseAllGroups(): Boolean {

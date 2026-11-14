@@ -382,7 +382,7 @@ class MainActivity : CsActivity() {
         batteryManager.unregister()
         clockManager.stop()
         if (::appListManager.isInitialized) {
-            appListManager.unregisterLauncherAppsCallback()
+            appListManager.destroy()
         }
     }
 

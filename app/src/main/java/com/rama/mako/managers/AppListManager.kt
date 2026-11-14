@@ -25,7 +25,18 @@ import java.text.Normalizer
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.ceil
+import android.content.pm.LauncherApps
+import android.content.pm.ShortcutInfo
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
 import com.rama.bohio.managers.ThemeManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AppListManager(
     private val context: Context,
@@ -33,6 +44,7 @@ class AppListManager(
     private val appsProvider: AppsProvider,
     private val onAppLaunched: (() -> Unit)? = null
 ) {
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private data class ScoredApp(
         val app: AppsProvider.AppEntry,
         val score: Int,
@@ -82,6 +94,7 @@ class AppListManager(
         updateAppsCache()
         buildItems()
         setupMultiSelectBar()
+        registerLauncherAppsCallback()
     }
 
     fun handleBackPress(): Boolean {
@@ -94,15 +107,92 @@ class AppListManager(
 
     fun isInMultiSelectMode(): Boolean = isMultiSelectMode
 
-    fun refresh() {
+    fun refresh(reloadApps: Boolean = true) {
         val columnCount = computeColumnCount()
         if (layoutManager.spanCount != columnCount) {
             layoutManager.spanCount = columnCount
         }
         recyclerView.layoutDirection =
             if (prefs.isRtlRowEnabled()) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
-        updateAppsCache()
+        if (reloadApps) {
+            updateAppsCache()
+        }
         buildItems()
+    }
+
+    fun refreshAppsAsync(onComplete: (() -> Unit)? = null) {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                updateAppsCache()
+            }
+            refresh(reloadApps = false)
+            onComplete?.invoke()
+        }
+    }
+
+    private var isCallbackRegistered = false
+
+    private val launcherAppsCallback = object : LauncherApps.Callback() {
+        override fun onPackageAdded(packageName: String, user: UserHandle) {
+            refreshAppsAsync()
+        }
+
+        override fun onPackageRemoved(packageName: String, user: UserHandle) {
+            refreshAppsAsync()
+        }
+
+        override fun onPackageChanged(packageName: String, user: UserHandle) {
+            refreshAppsAsync()
+        }
+
+        override fun onPackagesAvailable(
+            packageNames: Array<out String>,
+            user: UserHandle,
+            replacing: Boolean
+        ) {
+            refreshAppsAsync()
+        }
+
+        override fun onPackagesUnavailable(
+            packageNames: Array<out String>,
+            user: UserHandle,
+            replacing: Boolean
+        ) {
+            refreshAppsAsync()
+        }
+
+        override fun onShortcutsChanged(
+            packageName: String,
+            shortcuts: MutableList<ShortcutInfo>,
+            user: UserHandle
+        ) {
+            refreshAppsAsync()
+        }
+    }
+
+    fun registerLauncherAppsCallback() {
+        if (isCallbackRegistered) return
+        runCatching {
+            val launcherApps =
+                context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+            launcherApps?.registerCallback(launcherAppsCallback, Handler(Looper.getMainLooper()))
+            isCallbackRegistered = true
+        }
+    }
+
+    fun unregisterLauncherAppsCallback() {
+        if (!isCallbackRegistered) return
+        runCatching {
+            val launcherApps =
+                context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+            launcherApps?.unregisterCallback(launcherAppsCallback)
+            isCallbackRegistered = false
+        }
+    }
+
+    fun destroy() {
+        unregisterLauncherAppsCallback()
+        scope.cancel()
     }
 
     fun collapseAllGroups(): Boolean {
@@ -114,7 +204,7 @@ class AppListManager(
         if (expandedIds.isEmpty()) return false
 
         prefs.setGroupsExpanded(expandedIds.toSet(), false)
-        refresh()
+        refresh(reloadApps = false)
         return true
     }
 
@@ -162,7 +252,10 @@ class AppListManager(
                 )
             }
 
-            val isExpanded = prefs.isGroupKeepExpanded(groupId) || prefs.isGroupExpanded(groupId)
+            val isExpanded =
+                !prefs.hasGroupHeaders() || !prefs.hasCollapsibleGroups() || prefs.isGroupKeepExpanded(
+                    groupId
+                ) || prefs.isGroupExpanded(groupId)
             if (!isExpanded) return@forEach
 
             apps.sortedWith(
@@ -971,6 +1064,17 @@ class AppListManager(
             if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         holder.text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
 
+        val fontSize = prefs.getAppFontSize()
+        holder.text.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
+
+        val rowSpacingPx = spToPx(context, prefs.getAppRowSpacing().toFloat())
+        holder.text.setPaddingRelative(
+            holder.text.paddingStart,
+            rowSpacingPx,
+            holder.text.paddingEnd,
+            rowSpacingPx
+        )
+
         val pinned = prefs.isGroupKeepExpanded(item.id)
         val collapsible = prefs.hasCollapsibleGroups() && !pinned
         val isExpanded = pinned || (collapsible && prefs.isGroupExpanded(item.id))
@@ -1022,7 +1126,7 @@ class AppListManager(
                         }
                     }
 
-                    refresh()
+                    refresh(reloadApps = false)
                     val newPosition =
                         items.indexOfFirst { it is ListItem.Header && it.id == item.id }
                     if (newPosition != -1) {
@@ -1048,15 +1152,39 @@ class AppListManager(
         view.layoutDirection = if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
         val fontSize = prefs.getAppFontSize()
+        val rowSpacing = prefs.getAppRowSpacing()
+
         holder.label.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
 
-        val rowSpacingPx = spToPx(context, prefs.getAppRowSpacing().toFloat())
+        val rowSpacingPx = spToPx(context, rowSpacing.toFloat())
         holder.label.setPaddingRelative(
             holder.label.paddingStart,
             rowSpacingPx,
             holder.label.paddingEnd,
             rowSpacingPx
         )
+
+        // Dynamically scale icon size based on app font size and row spacing
+        val iconSizeSp = fontSize.toFloat() * (1f + (rowSpacing - 12f) / 64f)
+        val iconSizePx = spToPx(context, iconSizeSp)
+        val spacerPx = spToPx(context, iconSizeSp * 0.25f)
+
+        val iconParams = holder.icon.layoutParams
+        if (iconParams.width != iconSizePx || iconParams.height != iconSizePx) {
+            iconParams.width = iconSizePx
+            iconParams.height = iconSizePx
+            holder.icon.layoutParams = iconParams
+        }
+        holder.icon.setPaddingRelative(0, 0, spacerPx, 0)
+
+        val checkSizePx = spToPx(context, iconSizeSp * 0.75f)
+        val checkParams = holder.selectionCheck.layoutParams
+        if (checkParams.width != checkSizePx || checkParams.height != checkSizePx) {
+            checkParams.width = checkSizePx
+            checkParams.height = checkSizePx
+            holder.selectionCheck.layoutParams = checkParams
+        }
+        holder.selectionCheck.setPaddingRelative(0, 0, spacerPx, 0)
 
         val key = getSelectionKey(app)
         val isSelected = key in selectedApps

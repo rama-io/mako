@@ -1,5 +1,7 @@
 # Changelog
 
+## 60
+
 ## 59
 
 - Add PWA support

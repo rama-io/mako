@@ -1172,39 +1172,15 @@ class AppListManager(
         view.layoutDirection = if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
         val fontSize = prefs.getAppFontSize()
-        val rowSpacing = prefs.getAppRowSpacing()
-
         holder.label.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
 
-        val rowSpacingPx = spToPx(context, rowSpacing.toFloat())
+        val rowSpacingPx = spToPx(context, prefs.getAppRowSpacing().toFloat())
         holder.label.setPaddingRelative(
             holder.label.paddingStart,
             rowSpacingPx,
             holder.label.paddingEnd,
             rowSpacingPx
         )
-
-        // Dynamically scale icon size based on app font size and row spacing
-        val iconSizeSp = fontSize.toFloat() * (1f + (rowSpacing - 12f) / 64f)
-        val iconSizePx = spToPx(context, iconSizeSp)
-        val spacerPx = spToPx(context, iconSizeSp * 0.25f)
-
-        val iconParams = holder.icon.layoutParams
-        if (iconParams.width != iconSizePx || iconParams.height != iconSizePx) {
-            iconParams.width = iconSizePx
-            iconParams.height = iconSizePx
-            holder.icon.layoutParams = iconParams
-        }
-        holder.icon.setPaddingRelative(0, 0, spacerPx, 0)
-
-        val checkSizePx = spToPx(context, iconSizeSp * 0.75f)
-        val checkParams = holder.selectionCheck.layoutParams
-        if (checkParams.width != checkSizePx || checkParams.height != checkSizePx) {
-            checkParams.width = checkSizePx
-            checkParams.height = checkSizePx
-            holder.selectionCheck.layoutParams = checkParams
-        }
-        holder.selectionCheck.setPaddingRelative(0, 0, spacerPx, 0)
 
         val key = getSelectionKey(app)
         val isSelected = key in selectedApps

@@ -30,6 +30,7 @@ class SettingsAppearanceController(private val activity: SettingsActivity) {
     fun setup() {
         setupFontStyle()
         setupAppFontSize()
+        setupGroupFontSize()
         setupAppRowSpacing()
         setupTemperatureFormat()
         setupTheme()
@@ -337,6 +338,28 @@ class SettingsAppearanceController(private val activity: SettingsActivity) {
         }
 
         val steps = activity.resources.getStringArray(R.array.app_font_size_steps).toList()
+        val matchIndex = steps.indexOfFirst { it.toIntOrNull() == savedSize }
+        if (matchIndex >= 0) {
+            range.post {
+                val container = range.findViewById<android.widget.LinearLayout>(BohioR.id.container)
+                (container?.getChildAt(matchIndex) as? android.widget.Button)?.performClick()
+            }
+        }
+    }
+
+    private fun setupGroupFontSize() {
+        val range = activity.findViewById<WdRange>(R.id.group_font_size) ?: return
+
+        val savedSize = prefs.getGroupFontSize()
+
+        range.onValueChanged = { value ->
+            val size = value.toIntOrNull() ?: 16
+            if (size != prefs.getGroupFontSize()) {
+                prefs.setGroupFontSize(size)
+            }
+        }
+
+        val steps = activity.resources.getStringArray(R.array.group_font_size_steps).toList()
         val matchIndex = steps.indexOfFirst { it.toIntOrNull() == savedSize }
         if (matchIndex >= 0) {
             range.post {

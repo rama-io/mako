@@ -415,6 +415,19 @@
 
                 </LinearLayout>
 
+                <LinearLayout style="@style/VerticalListDivided_BG2">
+
+                    <TextView
+                        android:text="@string/label_group_font_size"
+                        style="@style/Text" />
+
+                    <com.rama.bohio.widgets.WdRange
+                        android:id="@+id/group_font_size"
+                        app:valuesArray="@array/group_font_size_steps"
+                        style="@style/BlockFlow" />
+
+                </LinearLayout>
+
             </com.rama.bohio.widgets.WdCollapsibleSection>
             <!--Clock-->
             <com.rama.bohio.widgets.WdCollapsibleSection

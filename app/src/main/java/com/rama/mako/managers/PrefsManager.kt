@@ -41,6 +41,7 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
         const val GROUPS_COLLAPSIBLE = "groups:collapsible"
         const val GROUPS_COLLAPSE_ON_HOME_FOCUS = "groups:collapse_on_home_focus"
         const val GROUPS_AUTO_COLLAPSE = "auto_collapse_groups"
+        const val GROUPS_FONT_SIZE = "groups:font_size"
 
         @Deprecated("Migrated into DATE_FORMAT (see MIGRATION_DATE_FORMAT_RADIO)")
         const val DATE_VISIBLE = "date:visible"
@@ -179,6 +180,7 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
         editor.putBoolean(FileKeys.APPS_RTL_ROW, false)
         editor.putInt(FileKeys.APPS_FONT_SIZE, 32)
         editor.putInt(FileKeys.APPS_ROW_SPACING, 12)
+        editor.putInt(FileKeys.GROUPS_FONT_SIZE, 16)
 
         editor.putString(FileKeys.HOME_BACKGROUND_MODE, BackgroundMode.DEFAULT)
         editor.putInt(FileKeys.HOME_BACKGROUND_MODE_SCREEN_OPACITY_STRENGTH, 9)
@@ -470,6 +472,12 @@ class PrefsManager private constructor(context: Context) : BohioPrefsManager(con
 
     fun setAppFontSize(size: Int) =
         prefs.edit().putInt(FileKeys.APPS_FONT_SIZE, size).apply()
+
+    fun getGroupFontSize(): Int =
+        prefs.getInt(FileKeys.GROUPS_FONT_SIZE, 16)
+
+    fun setGroupFontSize(size: Int) =
+        prefs.edit().putInt(FileKeys.GROUPS_FONT_SIZE, size).apply()
 
     fun getAppRowSpacing(): Int =
         prefs.getInt(FileKeys.APPS_ROW_SPACING, 12)

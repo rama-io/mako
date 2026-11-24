@@ -490,7 +490,10 @@ class MainActivity : CsActivity() {
 
         resumeRefreshRunnable = Runnable {
             if (isFinishing || isDestroyed) return@Runnable
-            if (!skipAppListRefresh) appListManager.refresh(reloadApps = false)
+            if (!skipAppListRefresh) {
+                appListManager.refresh(reloadApps = false)
+                appListManager.refreshAppsAsync()
+            }
             batteryManager.forceUpdate()
         }
 

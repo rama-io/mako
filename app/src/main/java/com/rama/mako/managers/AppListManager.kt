@@ -33,6 +33,7 @@ import android.os.UserHandle
 import com.rama.bohio.managers.ThemeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -67,6 +68,8 @@ class AppListManager(
     private var allAppsCache: List<AppsProvider.AppEntry> = emptyList()
     private val searchableNameCache = mutableMapOf<String, String>()
     private val packageNameCache = mutableMapOf<String, String>()
+    private var refreshJob: Job? = null
+    private var activeSearchQuery: String = ""
     private val combiningMarkRegex = Regex("\\p{M}+")
     private val tokenSeparatorRegex = Regex("[^a-z0-9]+")
     private val specialCharRegex = Regex("[^a-z0-9]+")
@@ -117,14 +120,20 @@ class AppListManager(
         if (reloadApps) {
             updateAppsCache()
         }
-        buildItems()
+        if (activeSearchQuery.isNotEmpty()) {
+            filter(activeSearchQuery)
+        } else {
+            buildItems()
+        }
     }
 
     fun refreshAppsAsync(onComplete: (() -> Unit)? = null) {
-        scope.launch {
-            withContext(Dispatchers.IO) {
-                updateAppsCache()
+        refreshJob?.cancel()
+        refreshJob = scope.launch {
+            val newApps = withContext(Dispatchers.IO) {
+                fetchApps()
             }
+            applyAppsCache(newApps)
             refresh(reloadApps = false)
             onComplete?.invoke()
         }
@@ -166,7 +175,9 @@ class AppListManager(
             shortcuts: MutableList<ShortcutInfo>,
             user: UserHandle
         ) {
-            refreshAppsAsync()
+            if (prefs.hasAppShortcuts()) {
+                refreshAppsAsync()
+            }
         }
     }
 
@@ -219,10 +230,18 @@ class AppListManager(
             .sortedWith(compareByDescending { prefs.isGroupKeepExpanded(it) })
     }
 
-    private fun updateAppsCache() {
-        allAppsCache = appsProvider.getAll(includeDynamicShortcuts = prefs.hasAppShortcuts())
+    private fun fetchApps(): List<AppsProvider.AppEntry> {
+        return appsProvider.getAll(includeDynamicShortcuts = prefs.hasAppShortcuts())
+    }
+
+    private fun applyAppsCache(newApps: List<AppsProvider.AppEntry>) {
+        allAppsCache = newApps
         searchableNameCache.clear()
         packageNameCache.clear()
+    }
+
+    private fun updateAppsCache() {
+        applyAppsCache(fetchApps())
     }
 
     private fun buildItems() {
@@ -437,6 +456,7 @@ class AppListManager(
         app.hasStatus && prefs.hasRunningIndicator()
 
     fun filter(query: String) {
+        activeSearchQuery = query
         val normalizedQuery = normalizeForSearch(query)
         val strippedQuery = stripSpecialChars(normalizedQuery)
         val isSearchActive = strippedQuery.isNotEmpty()

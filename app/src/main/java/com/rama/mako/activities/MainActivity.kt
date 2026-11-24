@@ -381,6 +381,9 @@ class MainActivity : CsActivity() {
 
         batteryManager.unregister()
         clockManager.stop()
+        if (::appListManager.isInitialized) {
+            appListManager.destroy()
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -487,7 +490,10 @@ class MainActivity : CsActivity() {
 
         resumeRefreshRunnable = Runnable {
             if (isFinishing || isDestroyed) return@Runnable
-            if (!skipAppListRefresh) appListManager.refresh()
+            if (!skipAppListRefresh) {
+                appListManager.refresh(reloadApps = false)
+                appListManager.refreshAppsAsync()
+            }
             batteryManager.forceUpdate()
         }
 

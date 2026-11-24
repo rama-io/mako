@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="activity_lock_label">Lock</string>
     <string name="altdescr_ascend_group">Move group up</string>
     <string name="altdescr_clear_search">Clear search</string>
@@ -93,6 +93,7 @@
     <string name="h3_temperature">Temperature</string>
     <string name="hint_search_apps">Search apps…</string>
     <string name="label_app_font_size">Font size</string>
+    <string name="label_group_font_size" tools:ignore="MissingTranslation">Group header font size</string>
     <string name="label_app_row_spacing">Rows spacing</string>
     <string name="label_screen_opacity_strength">Screen opacity strength</string>
     <string name="multi_select_cancel">Cancel</string>

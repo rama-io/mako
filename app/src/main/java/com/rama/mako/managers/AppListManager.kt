@@ -971,6 +971,8 @@ class AppListManager(
             if (isRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         holder.text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
 
+        val fontSize = prefs.getGroupFontSize()
+        holder.text.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
         val pinned = prefs.isGroupKeepExpanded(item.id)
         val collapsible = prefs.hasCollapsibleGroups() && !pinned
         val isExpanded = pinned || (collapsible && prefs.isGroupExpanded(item.id))

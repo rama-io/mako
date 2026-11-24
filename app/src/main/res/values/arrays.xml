@@ -70,6 +70,18 @@
         <item>48</item>
     </string-array>
 
+    <string-array name="group_font_size_steps">
+        <item>10</item>
+        <item>12</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>20</item>
+        <item>24</item>
+        <item>28</item>
+        <item>32</item>
+    </string-array>
+
     <string-array name="app_row_spacing_steps">
         <item>0</item>
         <item>4</item>
